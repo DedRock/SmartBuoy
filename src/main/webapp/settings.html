@@ -1,0 +1,337 @@
+<html>
+<head>
+<link rel="stylesheet" href="basestyle.css">
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="smartbuoy.js"></script>
+<script>
+
+// Global var
+var currentBuoySettings;
+
+function buoySelectorChangeHandler(){
+
+    var buoyId = document.getElementById('buoySelector').value;
+    clearElementData('settingName');
+    clearElementData('settingValue');
+
+    if (buoyId == '---'){
+        document.getElementById('settingsRow').style.visibility = 'hidden';
+    }else{
+        //console.log(BuoyIdSelect);
+        buoyReadSettings(buoyId);
+    }
+}
+
+/**
+ * ChangeHsndle for id='settingName'
+ */
+function settingNameChangeHandler(){
+    var setting = document.getElementById('settingName').value;
+    var settingValue = document.getElementById('settingValue');
+    settingValue.value = currentBuoySettings[setting];
+}
+
+/**
+ * Добавить элемент к списку Select
+ * @param selectId - идентификатор объекта тега <SELECT>
+ * @param itemName - название пункта Select
+ */
+function addSelectItem(selectId, itemName){
+    var selector = document.getElementById(selectId);
+    var option = document.createElement('option');
+    option.text = itemName;
+    selector.appendChild(option);
+    /*
+    // jQuery
+    var selector = $("#" + selectId);
+    selector.append('<option>' + itemName +'</option>');
+    */
+}
+
+
+/**
+ * Заполнение выриантов списка "Идентификатор буя"
+ * @param ids
+ */
+function fillSelectId(jsonIds){
+    addSelectItem('buoySelector', '---');
+    for (var k in jsonIds){
+        addSelectItem('buoySelector', jsonIds[k]);
+    }
+}
+
+
+function showSettingsSelector(data){
+    currentBuoySettings = data;
+    document.getElementById('settingsRow').style.visibility = 'visible';
+
+
+    // settingName
+    var selector = document.getElementById('settingName');
+    for (var key in data){
+        var item = document.createElement('option');
+        item.text = key;
+        selector.appendChild(item);
+    }
+    selector.onchange = settingNameChangeHandler;
+
+    // settingValue
+    document.getElementById('settingValue').value = currentBuoySettings[selector.options[0].text];
+
+    /*
+    // Label "Value"
+    selectorDiv.innerHTML = selectorDiv.innerHTML +  'Value :'
+    // Tag <INPUT>
+    var valueTextBox = document.createElement('input');
+    valueTextBox.id = 'curSettingValue';
+    valueTextBox.type = 'text';
+    valueTextBox.width = 20;
+    valueTextBox.value = currentBuoySettings[selector.options[0].text];
+    valueTextBox.addEventListener('change', settingSelectorChangeHandler);
+    selectorDiv.appendChild(valueTextBox);
+    */
+}
+
+/**
+ * Функция отображение ошибки ajax-запроса
+ * @param errorAnswer
+ */
+function showAjaxError(errorAnswer){
+    switch(errorAnswer.status){
+        case 1000:
+            alert("Ошибка клиентского ajax-запроса к серверу");
+            break;
+        case 1001:
+            alert("Ошибка сервера: не удаётся подключитсья к базе данных");
+            break;
+        case 1002:
+            alert("Ошибка сервера при выполнениии ajax-запроса");
+            break;
+    }
+    // Сам текст ошибки можно посомтреть в логе браузера, либо в:
+    // errorAnswer.responseText
+}
+
+/**
+ * Типы буёв
+ * @type {{BASIC: number, METEO: number, ECOLOG: number}}
+ */
+
+
+/**
+ * Подсветка поля ввода при реадктировании данных = при изменении (даже если потом вернули к исходному тексту).
+ * @param id - идентификатор input
+ */
+function showChangeField(){
+    document.getElementById(this.id).style.backgroundColor ='pink';
+    // Apply Button
+    var applyBtn = document.createElement('input');
+    applyBtn.id = this.id + 'Button';
+    applyBtn.type = 'button';
+    applyBtn.value = 'Apply';
+    applyBtn.addEventListener('click', applyBtnCliclHandler);
+    var tdApplyBtn = document.createElement("TD");
+    tdApplyBtn.appendChild(applyBtn);
+    document.getElementById(this.id + 'Row').appendChild(tdApplyBtn);
+    //document.getElementById(this.id + 'Button').disabled = false;
+
+}
+
+
+
+
+/**
+ * Добавить строку в таблицу свойств буя
+ * @param name - имя параметра
+ * @param value - значение (input text)
+ * @param disableInput - блокировка ввода input-a
+ */
+function addBuoyDataRow(tableId, name, id,  value, disableInput){
+    // new Row
+    var row = document.createElement('TR');
+    row.id = id + 'Row';
+    // Name of parameter
+    var tdParamName = document.createElement('TD');
+    tdParamName.appendChild(document.createTextNode(name));
+    // Value of Parameter
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.value =  value == undefined ? '' : value;
+    input.disabled = disableInput;
+    input.id =  id;
+    if (!disableInput){
+        input.addEventListener('input', showChangeField);
+    }
+    var tdParamValue = document.createElement("TD");
+    tdParamValue.appendChild(input);
+    /*
+     // Apply Button
+     var applyBtn = document.createElement('input');
+     applyBtn.id = id + 'Button';
+     applyBtn.type = 'button';
+     applyBtn.value = 'Apply';
+     applyBtn.addEventListener('click', applyBtnCliclHandler);
+     var tdApplyBtn = document.createElement("TD");
+     tdApplyBtn.appendChild(applyBtn);
+     */
+    // Fill row
+    row.appendChild(tdParamName);
+    row.appendChild(tdParamValue);
+    /*
+     if (!disableInput){
+     row.appendChild(tdApplyBtn);
+     }
+     */
+    var tbl = document.getElementById(tableId);
+    // Add row to table
+    tbl.appendChild(row);
+}
+
+/**
+ * Add row with caption of group of parameters
+ * @param tableId - id of table
+ * @param caption - name of parameters' group
+ * @param colSpan - number of columns
+ */
+function addGroupRow(tableId, caption, colSpan){
+    // new Row
+    var row = document.createElement('TR');
+    // Name of parameter
+    var tdCaption = document.createElement('TD');
+    tdCaption.appendChild(document.createTextNode(caption));
+    tdCaption.colSpan = colSpan;
+    // Fill row
+    row.appendChild(tdCaption);
+    var tbl = document.getElementById(tableId);
+    // Add row to table
+    tbl.appendChild(row);
+    //paintTableCells(tableId, borderTableCell);
+}
+
+/**
+ * Функция отображение данных текущего буя
+ * @param data - данные в формате JSON
+ */
+function showBuoyData(tableId, jsonData){
+    clearTableData(tableId);
+
+    addBuoyDataRow(tableId, 'MMSI', 'mmsi', jsonData.mmsi, true);
+    addBuoyDataRow(tableId, 'Name', 'name', jsonData.name );
+    var buoyType = getBuoyTypeEnumById(jsonData.buoyTypeId);
+    addBuoyDataRow(tableId, 'TYPE', 'type', buoyType.name );
+    addBuoyDataRow(tableId, 'SIM number', 'number', jsonData.simNumber);
+    addGroupRow(tableId, 'Coordinates', 2);
+    addBuoyDataRow(tableId, 'Широта (заданная)', 'latitude', jsonData.defaultLatitude);
+    addBuoyDataRow(tableId, 'Долгота(заданная)', 'longtitude', jsonData.defailtLongtitude);
+    addBuoyDataRow(tableId, 'Широта (текущая)', 'curLatitude', jsonData.curLatitude, true);
+    addBuoyDataRow(tableId, 'Долгота(текущая)', 'curLongtitude', jsonData.curLongtitude, true);
+    addBuoyDataRow(tableId, 'Рассчётный ресурс батареи (дни)', 'bateryResource', jsonData.bateryResource, true);
+    addBuoyDataRow(tableId, 'Необходимость заменить батарею', 'bateryNeedToChange', jsonData.bateryNeedToChange, true);
+    addBuoyDataRow(tableId, 'Напряжение', 'voltage', jsonData.voltage, true);
+    addGroupRow(tableId, 'FlashLight parameters', 2);
+    addBuoyDataRow(tableId, 'Длительность вспышек', 'flushDuration', jsonData.flushDuration);
+    addBuoyDataRow(tableId, 'промежуток между вспышками', 'flashPause', jsonData.flashPause);
+    addBuoyDataRow(tableId, 'Количество вспышек в серии', 'flashNumberInSeries', jsonData.flashNumberInSeries);
+    addBuoyDataRow(tableId, 'Начало серии вспышек \n (по UTC)', 'flastStartTime', jsonData.flastStartTime);
+    addBuoyDataRow(tableId, 'Задержка между сериями', 'flashSeriesInterval', jsonData.flashSeriesInterval);
+    addBuoyDataRow(tableId, 'Яркость вспышек', 'flashBrightness', jsonData.flashBrightness);
+    paintTableCells(tableId, 'borderTableCell');
+}
+
+/**
+ * Функция запроса новых данных с сервера при изменении номера текущего буя
+ */
+function buoyReadSettings(id){
+    $.get("/smartbuoy/getBuoySettings",{mmsi: id})
+            .done(function(answer){
+                showSettingsSelector(answer);
+            })
+            .error( function(answer) {
+                showAjaxError(answer);
+            })
+}
+
+/**
+ * получение идентифиакторов всех буёв с сервера
+ */
+function getBuoyIds(){
+    $.get("/smartbuoy/getMmsiList")
+            .done(function(answer){
+                fillSelectId(answer.mmsi);
+            })
+            .error(function(answer){
+                alert(answer.stat);
+            })
+}
+
+$(document).ready(function(){
+    getBuoyIds(); // получение списка идентификаторов буёв с сервера
+})
+
+</script>
+<meta charset="utf-8">
+</head>
+<body>
+<h3>Настройка параметров буя</h3>
+<hr/>
+<table>
+    <col width="300">
+    <col width="700">
+    <tr>
+        <td style="vertical-align: top">
+            <table>
+                <tr>
+                    <td>
+                        <input type='button' class="mainMenuButn" value='Главная страница' onclick="goToPage('main.html')">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type='button' class="mainMenuButn" value='Расширенная информация' onclick="goToPage('buoydata.html')">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type='button' class='mainMenuButn' value='Изменение групповых настроек буев' onclick="goToPage('groupsettings.html')">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type='button' class='mainMenuButn' value='История принятых данных' onclick="goToPage('inputdata.html')">
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="vertical-align: top">
+            <table>
+                <tr>
+                    <td colspan="2">
+                        Идентификатор буя :
+                    </td>
+                    <td colspan="2">
+                        <select id="buoySelector" onchange=buoySelectorChangeHandler()></select>
+                    </td>
+                </tr>
+                <tr id="settingsRow" style="visibility: hidden">
+                    <td>
+                        Параметр:
+                    </td>
+
+                    <td >
+                        <select id="settingName">
+                        </select>
+                    </td>
+                    <td>
+                        Значение:
+                    </td>
+                    <td >
+                        <input type='text' id="settingValue">
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+<html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="basestyle.css">
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="smartbuoy.js"></script>
+    <script type="text/javascript">
+
+        function addBuoyDataRow(tableId, mmsi, name, simNumber, type){
+            // new Row
+            var row = document.createElement('TR');
+            // mmsi
+            var tdMmsi = document.createElement('TD');
+            tdMmsi.appendChild(document.createTextNode(mmsi == undefined ? '' : mmsi));
+            // name
+            var tdName = document.createElement('TD');
+            tdName.appendChild(document.createTextNode(name == undefined ? '' : name));
+            // simNumber
+            var tdSimNumber = document.createElement('TD');
+            tdSimNumber.appendChild(document.createTextNode(simNumber == undefined ? '' : simNumber));
+            // type
+            var tdType = document.createElement('TD');
+            tdType.appendChild(document.createTextNode(type == undefined ? '' : type));
+            // button to delete
+            var delButton = document.createElement('input');
+            delButton.type = 'button';
+            delButton.value = 'Delete';
+            delButton.onclick = function(){alert('!!!');};
+            var tdDelBtn = document.createElement('TD');
+            tdDelBtn.appendChild(delButton);
+            // Fill row
+            row.appendChild(tdMmsi);
+            row.appendChild(tdName);
+            row.appendChild(tdSimNumber);
+            row.appendChild(tdType);
+            row.appendChild(tdDelBtn);
+            // Add row to table
+            document.getElementById(tableId).appendChild(row);;
+            paintTableCells();
+        }
+
+        /**
+         * Заполнить таблицу базовой информациио буях данными
+         * @param tableId - идентификатор таблицы
+         * @param jsonData - данные в формате JSON, массив структур:
+         * {
+         *  "mmsi": Number,
+         *  "name" : String,
+         *  "simNumber" : String,
+         *  "type" : Number
+         * }
+         */
+        function showBuoyTable(tableId, jsonData){
+            for (var k in jsonData){
+                addBuoyDataRow(tableId, jsonData[k].mmsi, jsonData[k].name, jsonData[k].simNumber, jsonData[k].buoyTypeId);
+            }
+            paintTableCells('buoySimpleInfoTable', 'borderTableCell');
+        }
+
+
+        /**
+         * AJAX-запрос основной информации о буях с сервера
+         */
+        function getBuoysList(){
+            $.get("/smartbuoy/getBuoysSimpleInfo")
+                    .done(function(answer){
+                        showBuoyTable('buoySimpleInfoTable', answer.simpleBuoyData);
+                    })
+                    .error(function(answer){
+                        alert(answer.stat);
+                    })
+        }
+
+        function change(){
+            //document.getElementById('in').style.backgroundColor ='pink';
+            alert('!!!');
+
+        }
+
+        function input(){
+            document.getElementById(this.id).style.backgroundColor ='green';
+        }
+
+
+        /**
+         * Действия после загрузки документа
+         */
+        $(document).ready(function(){
+            getBuoysList(); // получение базовой информации о буях
+            paintTableCells('buoySimpleInfoTable', 'borderTableCell');
+        })
+    </script>
+    <meta charset="utf-8">
+</head>
+<body>
+<h3>Система диспетчерского мониторинга "Умный буй"</h3>
+<hr/>
+<table>
+    <col width="300" valign="top">
+    <col width="700" valign="center">
+    <tr>
+        <td style="vertical-align: top">
+            <table>
+                <tr>
+                    <td>
+                        <input type='button' class="mainMenuButn" value='Расширенная информация' onclick="goToPage('buoydata.html')">
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: left">
+                        <input type='button' class='mainMenuButn' value='Изменение настроек отдельного буя' onclick="goToPage('settings.html')">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type='button' class='mainMenuButn' value='Изменение групповых настроек буев' onclick="goToPage('groupsettings.html')">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type='button' class='mainMenuButn' value='История принятых данных' onclick="goToPage('inputdata.html')">
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="vertical-align: top">
+            <table id="buoySimpleInfoTable" align='center'>
+                <col width='100'>
+                <col width='150'>
+                <col width='150'>
+                <col width='50'>
+                <tr>
+                    <th >MMSI</th>
+                    <th>Name</th>
+                    <th>SIM number</th>
+                    <th>Type</th>
+                    <th></th>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

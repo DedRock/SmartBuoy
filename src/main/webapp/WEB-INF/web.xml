@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+   version="2.5">
+
+  <display-name>Calc Servlet</display-name>
+  <description>
+     Calc Servlet
+  </description>
+
+    <!--##### getMmsiList #########################################################################################  -->
+	<servlet>
+		<servlet-name>getMmsiList</servlet-name>
+		<servlet-class>su.systserv.smartBuoy.web.servlet.GetMmsiListServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>getMmsiList</servlet-name>
+		<url-pattern>/getMmsiList</url-pattern>
+	</servlet-mapping>
+    <!--##### getBuoyData #########################################################################################  -->
+    <servlet>
+        <servlet-name>getBuoyData</servlet-name>
+        <servlet-class>su.systserv.smartBuoy.web.servlet.GetBuoyDataServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>getBuoyData</servlet-name>
+        <url-pattern>/getBuoyData</url-pattern>
+    </servlet-mapping>
+    <!--##### getBuoySettings #########################################################################################  -->
+    <servlet>
+        <servlet-name>getBuoySettings</servlet-name>
+        <servlet-class>su.systserv.smartBuoy.web.servlet.GetBuoySettingsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>getBuoySettings</servlet-name>
+        <url-pattern>/getBuoySettings</url-pattern>
+    </servlet-mapping>
+    <!--##### getBuoysSimpleInfo #########################################################################################  -->
+    <servlet>
+        <servlet-name>getBuoysSimpleInfo</servlet-name>
+        <servlet-class>su.systserv.smartBuoy.web.servlet.GetBuoysSimpleInfoServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>getBuoysSimpleInfo</servlet-name>
+        <url-pattern>/getBuoysSimpleInfo</url-pattern>
+    </servlet-mapping>
+    <!--##### InputDatasServlet #########################################################################################  -->
+    <servlet>
+        <servlet-name>inputData</servlet-name>
+        <servlet-class>su.systserv.smartBuoy.web.servlet.InputDataServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>inputData</servlet-name>
+        <url-pattern>/input</url-pattern>
+    </servlet-mapping>
+
+
+</web-app>
