@@ -1,5 +1,6 @@
 <html>
 <head>
+    <title>"Умный буй".Расширенная информация по одиночному бую</title>
     <link rel="stylesheet" href="basestyle.css">
     <script type="text/javascript" src="jquery.js"></script>
     <script type="text/javascript" src="smartbuoy.js"></script>
@@ -105,24 +106,9 @@
             }
             var tdParamValue = document.createElement("TD");
             tdParamValue.appendChild(input);
-            /*
-            // Apply Button
-            var applyBtn = document.createElement('input');
-            applyBtn.id = id + 'Button';
-            applyBtn.type = 'button';
-            applyBtn.value = 'Apply';
-            applyBtn.addEventListener('click', applyBtnCliclHandler);
-            var tdApplyBtn = document.createElement("TD");
-            tdApplyBtn.appendChild(applyBtn);
-            */
             // Fill row
             row.appendChild(tdParamName);
             row.appendChild(tdParamValue);
-            /*
-            if (!disableInput){
-                row.appendChild(tdApplyBtn);
-            }
-            */
             var tbl = document.getElementById(tableId);
             // Add row to table
             tbl.appendChild(row);
@@ -146,7 +132,7 @@
             var tbl = document.getElementById(tableId);
             // Add row to table
             tbl.appendChild(row);
-            //paintTableCells(tableId, borderTableCell);
+
         }
 
         /**
@@ -229,6 +215,11 @@
                     <tr>
                         <td>
                             <input type='button' class="mainMenuButn" value='Главная страница' onclick="goToPage('main.html')">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type='button' class="mainMenuButn" value='Расширенная информация' onclick="goToPage('buoydata.html')">
                         </td>
                     </tr>
                     <tr>

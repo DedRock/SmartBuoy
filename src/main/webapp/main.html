@@ -1,11 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>"Умный буй".Главная</title>
     <link rel="stylesheet" href="basestyle.css">
     <script type="text/javascript" src="jquery.js"></script>
     <script type="text/javascript" src="smartbuoy.js"></script>
     <script type="text/javascript">
 
+        /**
+         * Добавление новой строки данных о буе в таблицу
+         * @param tableId
+         * @param mmsi
+         * @param name
+         * @param simNumber
+         * @param type
+         */
         function addBuoyDataRow(tableId, mmsi, name, simNumber, type){
             // new Row
             var row = document.createElement('TR');
@@ -71,17 +80,6 @@
                     })
         }
 
-        function change(){
-            //document.getElementById('in').style.backgroundColor ='pink';
-            alert('!!!');
-
-        }
-
-        function input(){
-            document.getElementById(this.id).style.backgroundColor ='green';
-        }
-
-
         /**
          * Действия после загрузки документа
          */
@@ -101,6 +99,11 @@
     <tr>
         <td style="vertical-align: top">
             <table>
+                <tr>
+                    <td>
+                        <input type='button' class="mainMenuButn" value='Главная страница' onclick="goToPage('main.html')">
+                    </td>
+                </tr>
                 <tr>
                     <td>
                         <input type='button' class="mainMenuButn" value='Расширенная информация' onclick="goToPage('buoydata.html')">

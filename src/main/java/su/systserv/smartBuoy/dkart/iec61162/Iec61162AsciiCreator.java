@@ -89,10 +89,11 @@ public class Iec61162AsciiCreator {
     /**
      * calculating control summary by IEC-61162
      */
-    private char calcCS(List<Character> message){
+    private char calcCS(String message){
         char result = (char)0;
-        for(char curChar : message){
-            result ^= curChar;
+        byte[] messageBytes = message.getBytes();
+        for(byte curByte :messageBytes){
+            result ^= curByte;
         }
         return result;
     }
@@ -141,7 +142,7 @@ public class Iec61162AsciiCreator {
      * @throws Iec61162Exception
      *   in case of null-value of input parameters
      */
-    public List<Character> formVdmMessage(
+    public String formVdmMessage(
             int messageId,
             int repeatIndicator,
             int mmsi,
@@ -180,21 +181,22 @@ public class Iec61162AsciiCreator {
             throw new Iec61162Exception("Некорректные исходные данные для формирования VDM-сообщения (IEC-61162)");
         }
 
-        List<Character> message = new ArrayList<>();
-        message.add('!');
-        message.add('A');
-        message.add('I');
-        message.add('V');
-        message.add('D');
-        message.add('M');
-        message.add(',');
-        message.add('1');
-        message.add(',');
-        message.add('1');
-        message.add(',');
-        message.add(',');
-        message.add('A');
-        message.add(',');
+        //List<Character> message = new ArrayList<>();
+        StringBuilder message = new StringBuilder();
+        message.append('!');
+        message.append('A');
+        message.append('I');
+        message.append('V');
+        message.append('D');
+        message.append('M');
+        message.append(',');
+        message.append('1');
+        message.append(',');
+        message.append('1');
+        message.append(',');
+        message.append(',');
+        message.append('A');
+        message.append(',');
         //===== forming  Info-message by bits ============================
         List<Boolean> messageInfoBits = new ArrayList<>();
         int i;
@@ -240,25 +242,27 @@ public class Iec61162AsciiCreator {
             }
             // Если подсчитали код очередного символа из 6 бит
             if (i%6 == 5){
-                message.add(asciiTable.get((byte)curCharCode));
+                message.append(asciiTable.get((byte) curCharCode));
                 curCharCode = 0; // начинаем подсчитывать код очередного исмвола заново
             }
         }
+        /*
         System.out.println("Message = " + message);
         for(i=138; i<160; i++){
             System.out.println("messageBits["+i+"] = "+messageInfoBits.get(i));
         }
-        message.add(',');
-        message.add('0');
-        message.add('*');
+        */
+        message.append(',');
+        message.append('0');
+        message.append('*');
         // Вычисляем контрольную сумму, и добавляем в конец сообщения символы обоих байтов контрольной суммы в HEX представлении
         // Пример контрольная сумма равна 61 = 0x3D => message.add('3').add('D');
-        for(char curCrcByte : Integer.toHexString((int)calcCS(message.subList(1, message.size()-1))).toCharArray() ){
-            message.add(curCrcByte);
+        for(char curCrcByte : Integer.toHexString((int)calcCS(message.substring(1, message.length()-1))).toCharArray() ){
+            message.append(curCrcByte);
         }
-        message.add((char)0x0D);
-        message.add((char)0x0A);
-        return message;
+        message.append((char)0x0D);
+        message.append((char)0x0A);
+        return message.toString();
     }
 
     // Test
@@ -268,7 +272,7 @@ public class Iec61162AsciiCreator {
         Iec61162AsciiCreator creator = new Iec61162AsciiCreator();
 
 
-        List<Character> messageByCreator;
+        String messageByCreator;
         /* Example by Sitnikov Ivan*/
         /*
         messageByCreator = creator.formVdmMessage(
@@ -311,11 +315,8 @@ public class Iec61162AsciiCreator {
                     0// communicationsState
             );
 
+            System.out.print("messageByCreator = \"" + messageByCreator + "\"");
 
-        System.out.print("messageByCreator = ");
-        for(char curChar : messageByCreator){
-            System.out.print(curChar);
-        }
         } catch (Iec61162Exception e){
             e.printStackTrace();
         }

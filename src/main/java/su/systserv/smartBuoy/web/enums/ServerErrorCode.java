@@ -9,9 +9,7 @@ package su.systserv.smartBuoy.web.enums;
  */
 public enum ServerErrorCode{
     CLIENT_QUERY_ERROR (1000),
-    DATABASE_CONNECTION_ERROR(1001),
-    SERVER_ERROR(1002),
-    JSON_ERROR(1003);
+    SERVER_ERROR(1002);
 
     private int code;
     ServerErrorCode(int code){

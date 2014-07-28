@@ -48,9 +48,13 @@ import java.util.List;
         Session session = null;
         try {
             session = sessionFactory.openSession();
+            session.clear();
             session.beginTransaction();
 
-            List<Buoy> buoys = (List<Buoy>)session.createQuery("FROM su.systserv.smartBuoy.buoy.entity.Buoy").list();
+            List<Buoy> buoys = new ArrayList<Buoy>();
+            buoys = (List<Buoy>)session.createQuery("FROM su.systserv.smartBuoy.buoy.entity.Buoy").list();            ;
+
+
             List<JSONObject> buoysSimpleInfo = new ArrayList<JSONObject>();
             for( Buoy buoy : buoys){
                 //buoysSimpleInfo.add(b.getSimpleInfo());
@@ -60,6 +64,8 @@ import java.util.List;
             jsonAnswer.put("simpleBuoyData", buoysSimpleInfo);
             ServletUtil.sendJsonAsnwer(jsonAnswer, response);
         } catch (Exception e) {
+
+            e.printStackTrace();
             ServletUtil.sendError(ServerErrorCode.SERVER_ERROR.getCode(), "Server Error", response);
         } finally {
             if (session != null && session.isOpen()) {

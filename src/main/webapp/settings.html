@@ -1,34 +1,47 @@
 <html>
 <head>
-<link rel="stylesheet" href="basestyle.css">
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="smartbuoy.js"></script>
+    <title>"Умный буй".Настройки одиночного буя</title>
+    <link rel="stylesheet" href="basestyle.css">
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="smartbuoy.js"></script>
 <script>
 
 // Global var
-var currentBuoySettings;
+var buoysSimpleInfo; // JSON с "Simple Info" по буям
+var curBuoyId; // MMSI of current Buoy
+var curSimNumber; // SIM-number of current Buoy
+var currentBuoySettings;// JSON с текущими настройками буя
+var defaultSettingValue;
+var curSettingValue;
+var settingName;
 
+/**
+ * Change Handler for select with id=buoySelector
+ */
 function buoySelectorChangeHandler(){
-
-    var buoyId = document.getElementById('buoySelector').value;
+    var curBuoyId = document.getElementById('buoySelector').value;
     clearElementData('settingName');
-    clearElementData('settingValue');
+    clearElementData('settingValueId');
 
-    if (buoyId == '---'){
+    if (curBuoyId == '---'){
         document.getElementById('settingsRow').style.visibility = 'hidden';
     }else{
         //console.log(BuoyIdSelect);
-        buoyReadSettings(buoyId);
+        buoyReadSettings(curBuoyId);
     }
 }
 
 /**
- * ChangeHsndle for id='settingName'
+ * ChangeHandler for select with id='settingName'
  */
 function settingNameChangeHandler(){
-    var setting = document.getElementById('settingName').value;
-    var settingValue = document.getElementById('settingValue');
-    settingValue.value = currentBuoySettings[setting];
+    settingName = document.getElementById('settingName').value;
+    var settingValueElement = document.getElementById('settingValueId');
+    defaultSettingValue = currentBuoySettings[settingName];
+    curSettingValue = defaultSettingValue;
+    settingValueElement.value = defaultSettingValue;
+    settingValueElement.style.backgroundColor ='white';
+    document.getElementById('saveSettingBtn').disabled = true;
 }
 
 /**
@@ -41,30 +54,43 @@ function addSelectItem(selectId, itemName){
     var option = document.createElement('option');
     option.text = itemName;
     selector.appendChild(option);
-    /*
-    // jQuery
-    var selector = $("#" + selectId);
-    selector.append('<option>' + itemName +'</option>');
-    */
 }
 
-
 /**
- * Заполнение выриантов списка "Идентификатор буя"
+ * Fill values list of select with id="buoySelector"
  * @param ids
  */
-function fillSelectId(jsonIds){
+function fillBuoySelector(jsonIds){
     addSelectItem('buoySelector', '---');
     for (var k in jsonIds){
-        addSelectItem('buoySelector', jsonIds[k]);
+        //addSelectItem('buoySelector', jsonIds[k]); // old
+        addSelectItem('buoySelector', jsonIds[k].mmsi);
     }
 }
 
+/**
+ * Send SMS with new value of setting
+  */
+function sendSms(){
+    alert('Sending sms...');
+     /*
+     $.get("/smartbuoy/sendSMS", {data:"..."}) // EDIT !!!!
+     .done(function(answer){
+     fillBuoySelector(answer.mmsi);
+     })
+     .error(function(answer){
+     alert(answer.stat);
+     })
+     */
+}
 
+/**
+ * Нарисовать селектор со списком имён настроечных праметров + textinput для отображения значения
+ * @param data
+ */
 function showSettingsSelector(data){
     currentBuoySettings = data;
     document.getElementById('settingsRow').style.visibility = 'visible';
-
 
     // settingName
     var selector = document.getElementById('settingName');
@@ -76,46 +102,40 @@ function showSettingsSelector(data){
     selector.onchange = settingNameChangeHandler;
 
     // settingValue
-    document.getElementById('settingValue').value = currentBuoySettings[selector.options[0].text];
+    var settingValueELement =  document.getElementById('settingValueId');
+    settingValueELement.value = currentBuoySettings[selector.options[0].text];
+    settingValueELement.oninput = checkValueChange;
+    defaultSettingValue = currentBuoySettings[selector.options[0].text];
 
-    /*
-    // Label "Value"
-    selectorDiv.innerHTML = selectorDiv.innerHTML +  'Value :'
-    // Tag <INPUT>
-    var valueTextBox = document.createElement('input');
-    valueTextBox.id = 'curSettingValue';
-    valueTextBox.type = 'text';
-    valueTextBox.width = 20;
-    valueTextBox.value = currentBuoySettings[selector.options[0].text];
-    valueTextBox.addEventListener('change', settingSelectorChangeHandler);
-    selectorDiv.appendChild(valueTextBox);
-    */
+    // saveSettingBtn
+    var saveSettingBtn = document.getElementById('saveSettingBtn');
+    saveSettingBtn.style.visibility = 'visible';
+    saveSettingBtn.onclick = function(){
+        console.log("settingName = " + settingName + ", curSettingValue = " + curSettingValue);
+
+
+    };
+
 }
 
+
+
 /**
- * Функция отображение ошибки ajax-запроса
- * @param errorAnswer
+ * Check setting's value to change
+ * @param defaultValue
  */
-function showAjaxError(errorAnswer){
-    switch(errorAnswer.status){
-        case 1000:
-            alert("Ошибка клиентского ajax-запроса к серверу");
-            break;
-        case 1001:
-            alert("Ошибка сервера: не удаётся подключитсья к базе данных");
-            break;
-        case 1002:
-            alert("Ошибка сервера при выполнениии ajax-запроса");
-            break;
+function checkValueChange(defaultValue){
+    var settingValueElement = document.getElementById('settingValueId');
+    curSettingValue = settingValueElement.value;
+    if (defaultSettingValue != curSettingValue){
+        settingValueElement.style.backgroundColor ='pink';
+        document.getElementById('saveSettingBtn').disabled = false;
+    } else{
+        settingValueElement.style.backgroundColor ='white';
+        document.getElementById('saveSettingBtn').disabled = true;
     }
-    // Сам текст ошибки можно посомтреть в логе браузера, либо в:
-    // errorAnswer.responseText
-}
 
-/**
- * Типы буёв
- * @type {{BASIC: number, METEO: number, ECOLOG: number}}
- */
+}
 
 
 /**
@@ -133,113 +153,26 @@ function showChangeField(){
     var tdApplyBtn = document.createElement("TD");
     tdApplyBtn.appendChild(applyBtn);
     document.getElementById(this.id + 'Row').appendChild(tdApplyBtn);
-    //document.getElementById(this.id + 'Button').disabled = false;
-
 }
 
-
-
-
 /**
- * Добавить строку в таблицу свойств буя
- * @param name - имя параметра
- * @param value - значение (input text)
- * @param disableInput - блокировка ввода input-a
+ * AJAX-query to send SMS via servlet
  */
-function addBuoyDataRow(tableId, name, id,  value, disableInput){
-    // new Row
-    var row = document.createElement('TR');
-    row.id = id + 'Row';
-    // Name of parameter
-    var tdParamName = document.createElement('TD');
-    tdParamName.appendChild(document.createTextNode(name));
-    // Value of Parameter
-    var input = document.createElement('input');
-    input.type = 'text';
-    input.value =  value == undefined ? '' : value;
-    input.disabled = disableInput;
-    input.id =  id;
-    if (!disableInput){
-        input.addEventListener('input', showChangeField);
-    }
-    var tdParamValue = document.createElement("TD");
-    tdParamValue.appendChild(input);
+function sendSms(){
     /*
-     // Apply Button
-     var applyBtn = document.createElement('input');
-     applyBtn.id = id + 'Button';
-     applyBtn.type = 'button';
-     applyBtn.value = 'Apply';
-     applyBtn.addEventListener('click', applyBtnCliclHandler);
-     var tdApplyBtn = document.createElement("TD");
-     tdApplyBtn.appendChild(applyBtn);
-     */
-    // Fill row
-    row.appendChild(tdParamName);
-    row.appendChild(tdParamValue);
-    /*
-     if (!disableInput){
-     row.appendChild(tdApplyBtn);
-     }
-     */
-    var tbl = document.getElementById(tableId);
-    // Add row to table
-    tbl.appendChild(row);
+    $.get("/smartbuoy/sendSMS",{"simNumber": ___,"setting": _____, "value": ____})
+            .done(function(answer){
+                showSettingsSelector(answer);
+            })
+            .error( function(answer) {
+                showAjaxError(answer);
+            })
+    */
 }
 
-/**
- * Add row with caption of group of parameters
- * @param tableId - id of table
- * @param caption - name of parameters' group
- * @param colSpan - number of columns
- */
-function addGroupRow(tableId, caption, colSpan){
-    // new Row
-    var row = document.createElement('TR');
-    // Name of parameter
-    var tdCaption = document.createElement('TD');
-    tdCaption.appendChild(document.createTextNode(caption));
-    tdCaption.colSpan = colSpan;
-    // Fill row
-    row.appendChild(tdCaption);
-    var tbl = document.getElementById(tableId);
-    // Add row to table
-    tbl.appendChild(row);
-    //paintTableCells(tableId, borderTableCell);
-}
 
 /**
- * Функция отображение данных текущего буя
- * @param data - данные в формате JSON
- */
-function showBuoyData(tableId, jsonData){
-    clearTableData(tableId);
-
-    addBuoyDataRow(tableId, 'MMSI', 'mmsi', jsonData.mmsi, true);
-    addBuoyDataRow(tableId, 'Name', 'name', jsonData.name );
-    var buoyType = getBuoyTypeEnumById(jsonData.buoyTypeId);
-    addBuoyDataRow(tableId, 'TYPE', 'type', buoyType.name );
-    addBuoyDataRow(tableId, 'SIM number', 'number', jsonData.simNumber);
-    addGroupRow(tableId, 'Coordinates', 2);
-    addBuoyDataRow(tableId, 'Широта (заданная)', 'latitude', jsonData.defaultLatitude);
-    addBuoyDataRow(tableId, 'Долгота(заданная)', 'longtitude', jsonData.defailtLongtitude);
-    addBuoyDataRow(tableId, 'Широта (текущая)', 'curLatitude', jsonData.curLatitude, true);
-    addBuoyDataRow(tableId, 'Долгота(текущая)', 'curLongtitude', jsonData.curLongtitude, true);
-    addBuoyDataRow(tableId, 'Рассчётный ресурс батареи (дни)', 'bateryResource', jsonData.bateryResource, true);
-    addBuoyDataRow(tableId, 'Необходимость заменить батарею', 'bateryNeedToChange', jsonData.bateryNeedToChange, true);
-    addBuoyDataRow(tableId, 'Напряжение', 'voltage', jsonData.voltage, true);
-    addGroupRow(tableId, 'FlashLight parameters', 2);
-    addBuoyDataRow(tableId, 'Длительность вспышек', 'flushDuration', jsonData.flushDuration);
-    addBuoyDataRow(tableId, 'промежуток между вспышками', 'flashPause', jsonData.flashPause);
-    addBuoyDataRow(tableId, 'Количество вспышек в серии', 'flashNumberInSeries', jsonData.flashNumberInSeries);
-    addBuoyDataRow(tableId, 'Начало серии вспышек \n (по UTC)', 'flastStartTime', jsonData.flastStartTime);
-    addBuoyDataRow(tableId, 'Задержка между сериями', 'flashSeriesInterval', jsonData.flashSeriesInterval);
-    addBuoyDataRow(tableId, 'Яркость вспышек', 'flashBrightness', jsonData.flashBrightness);
-    paintTableCells(tableId, 'borderTableCell');
-}
-
-/**
- * Функция запроса новых данных с сервера при изменении номера текущего буя
+ * AJAX-query to get settings of selected buoy
  */
 function buoyReadSettings(id){
     $.get("/smartbuoy/getBuoySettings",{mmsi: id})
@@ -252,20 +185,31 @@ function buoyReadSettings(id){
 }
 
 /**
- * получение идентифиакторов всех буёв с сервера
+ * AJAX-query to get "Buoys Simple Info"
  */
-function getBuoyIds(){
-    $.get("/smartbuoy/getMmsiList")
+function getBuoysSimpleInfo(){
+    $.get("/smartbuoy/getBuoysSimpleInfo")
             .done(function(answer){
-                fillSelectId(answer.mmsi);
+                // Save BuoysSimpleInfo to global variable
+                if (answer.simpleBuoyData == undefined){
+                    alert("Ошибка связи с сервером: не данных о зарегистрированнных буях.");
+                } else{
+                    buoysSimpleInfo = answer.simpleBuoyData;
+                    fillBuoySelector(buoysSimpleInfo);
+                }
+
+                //showBuoyTable('buoySimpleInfoTable', answer.simpleBuoyData);
             })
             .error(function(answer){
                 alert(answer.stat);
             })
 }
 
+/**
+ * Actions after document is ready
+ */
 $(document).ready(function(){
-    getBuoyIds(); // получение списка идентификаторов буёв с сервера
+    getBuoysSimpleInfo(); // получение базовой информации о зарегистрированных буях
 })
 
 </script>
@@ -288,6 +232,11 @@ $(document).ready(function(){
                 <tr>
                     <td>
                         <input type='button' class="mainMenuButn" value='Расширенная информация' onclick="goToPage('buoydata.html')">
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: left">
+                        <input type='button' class='mainMenuButn' value='Изменение настроек отдельного буя' onclick="goToPage('settings.html')">
                     </td>
                 </tr>
                 <tr>
@@ -325,7 +274,12 @@ $(document).ready(function(){
                         Значение:
                     </td>
                     <td >
-                        <input type='text' id="settingValue">
+                        <input type='text' id="settingValueId">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type='button' id='saveSettingBtn' value='Сохранить' disabled='true' style="visibility: hidden">
                     </td>
                 </tr>
             </table>

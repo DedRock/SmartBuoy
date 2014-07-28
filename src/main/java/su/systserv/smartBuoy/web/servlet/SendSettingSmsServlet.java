@@ -62,7 +62,6 @@ public class SendSettingSmsServlet extends HttpServlet {
             }
 
             // Проверка зарегистрированного буя с указанным номером
-
             session = sessionFactory.openSession();
             session.beginTransaction();
 
@@ -88,7 +87,7 @@ public class SendSettingSmsServlet extends HttpServlet {
                         curField = Buoy.class.getField(setting);
                         settingClass = curField.getClass();
                         // Определяем может ли строка 'value' быть приведена к нужному типу параметра
-                        if ( ! checkValueType(settingClass, value) ){
+                        if ( ! ServletUtil.checkValueType(settingClass, value) ){
                             throw new ServletExecutionException("parameter value has wrong data type !");
                         }
                     }catch (Exception e){
@@ -101,7 +100,7 @@ public class SendSettingSmsServlet extends HttpServlet {
                         curField = Buoy.class.getField(setting);
                         settingClass = curField.getClass();
                         // Определяем может ли строка 'value' быть приведена к нужному типу параметра
-                        if ( ! checkValueType(settingClass, value) ){
+                        if ( ! ServletUtil.checkValueType(settingClass, value) ){
                             throw new ServletExecutionException("parameter value has wrong data type !");
                         }
                     }catch (Exception e1){
@@ -110,7 +109,7 @@ public class SendSettingSmsServlet extends HttpServlet {
                             curField = MeteoBuoy.class.getField(setting);
                             settingClass = curField.getClass();
                             // Определяем может ли строка 'value' быть приведена к нужному типу параметра
-                            if ( ! checkValueType(settingClass, value) ){
+                            if ( ! ServletUtil.checkValueType(settingClass, value) ){
                                 throw new ServletExecutionException("parameter value has wrong data type !");
                             }
                         }catch (Exception e2){
@@ -153,57 +152,4 @@ public class SendSettingSmsServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Функция проверки приведения типа параметра из строкового значения
-     * @param settingClass - класс типа параметра
-     * @param value - строковое значение параметра
-     * @return
-     *  true - приведение типа возможно
-     *  false - приведение типа невозможно
-     */
-    boolean checkValueType(Class settingClass, String value){
-        boolean result = false;
-
-        // String
-        if ( settingClass == java.lang.String.class){
-            return true;
-        }
-        // Byte
-        else if (settingClass == java.lang.Byte.class){
-            try{
-                Byte.parseByte(value);
-                return true;
-            }catch (Exception e){
-                return false;
-            }
-        }
-        // Integer
-        else if (settingClass == java.lang.Integer.class){
-            try{
-                Integer.parseInt(value);
-                return true;
-            }catch (Exception e){
-                return false;
-            }
-        }
-        // Long
-        else if (settingClass == java.lang.Long.class){
-            try{
-                Long.parseLong(value);
-                return true;
-            }catch (Exception e){
-                return false;
-            }
-        }
-        // Boolean
-        else if (settingClass == Boolean.class){
-            try{
-                Boolean.parseBoolean(value);
-                return true;
-            }catch (Exception e){
-                return false;
-            }
-        }
-        return result;
-    }
 }

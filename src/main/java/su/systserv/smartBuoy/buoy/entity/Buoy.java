@@ -38,19 +38,19 @@ public class Buoy {
 
     // Coordinates
     @Column(name="curLatitude")
-    private String curLatitude; // текущая широта
+    private Double curLatitude; // текущая широта
     @Column(name="curLongtitude")
-    private String curLongtitude; // текущая долгота
+    private Double curLongtitude; // текущая долгота
     @BuoySetting
     @Column(name="defaultLatitude")
-    private String defaultLatitude; // заданноая широта
+    private Double defaultLatitude; // заданноая широта
     @BuoySetting
     @Column(name="defailtLongtitude")
-    private String defailtLongtitude; // заданноая долгота
+    private Double defailtLongtitude; // заданноая долгота
 
     // Buoy's energy parameters
     @Column(name="voltage")
-    private Float voltage; // текущее напряжение
+    private Double voltage; // текущее напряжение
     @Column(name="batteryResource")
     private Byte batteryResource; // Запас по времени работы батареи, дни
     @Column(name="batteryNeedToChange")
@@ -121,11 +121,11 @@ public class Buoy {
         return flushDuration;
     }
 
-    public String getCurLatitude() {
+    public Double getCurLatitude() {
         return curLatitude;
     }
 
-    public String getCurLongtitude() {
+    public Double getCurLongtitude() {
         return curLongtitude;
     }
 
@@ -133,15 +133,15 @@ public class Buoy {
         return simNumber;
     }
 
-    public Float getVoltage() {
+    public Double getVoltage() {
         return voltage;
     }
 
-    public String getDefailtLongtitude() {
+    public Double getDefailtLongtitude() {
         return defailtLongtitude;
     }
 
-    public String getDefaultLatitude() {
+    public Double getDefaultLatitude() {
         return defaultLatitude;
     }
 
@@ -195,11 +195,11 @@ public class Buoy {
         this.flushDuration = flushDuration;
     }
 
-    public void setCurLatitude(String curLatitude) {
+    public void setCurLatitude(Double curLatitude) {
         this.curLatitude = curLatitude;
     }
 
-    public void setCurLongtitude(String curLongtitude) {
+    public void setCurLongtitude(Double curLongtitude) {
         this.curLongtitude = curLongtitude;
     }
 
@@ -207,15 +207,15 @@ public class Buoy {
         this.simNumber = simNumber;
     }
 
-    public void setVoltage(Float voltage) {
+    public void setVoltage(Double voltage) {
         this.voltage = voltage;
     }
 
-    public void setDefailtLongtitude(String defailtLongtitude) {
+    public void setDefailtLongtitude(Double defailtLongtitude) {
         this.defailtLongtitude = defailtLongtitude;
     }
 
-    public void setDefaultLatitude(String defaultLatitude) {
+    public void setDefaultLatitude(Double defaultLatitude) {
         this.defaultLatitude = defaultLatitude;
     }
 

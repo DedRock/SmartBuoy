@@ -111,18 +111,6 @@ public class Serialization {
                 }
             }
         }
-
         return result;
-    }
-
-    public static void main(String...args){
-        Buoy buoy = new Buoy();
-        buoy.setName("Test");
-        buoy.setSimNumber(9117350627L);
-
-        //JSONObject json = getAllColumnsData(buoy, Buoy.class);
-       JSONObject json = getFieldsByAnnotation(buoy, BuoySetting.class);
-        System.out.println(json);
-
     }
 }

@@ -57,6 +57,7 @@ public class GetBuoyDataServlet extends HttpServlet {
             try{
                 log.info("Get buot with mmsi = " + buoyMmsi);
                 buoy = (Buoy)session.load(Buoy.class, buoyMmsi);
+                session.update(buoy);
             } catch (ObjectNotFoundException e){
                 throw new MyServerException( ServerErrorCode.SERVER_ERROR, "Record with MMSI# " + buoyMmsi + "is not found in table \"Buoy\"");
             }

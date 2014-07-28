@@ -30,17 +30,49 @@ function getBuoyTypeEnumById(id){
     }
 }
 /**
- * Change page function
+ * Перейти на указанную страницу
  * @param url
  */
 function goToPage(url){
     document.location.href = url;
 }
 
-/*===== Функции работы с таблицами ==================================================================*/
 
 /**
- * Очистить содержимое таблицы
+ * Выполнить ajax-запрос
+ * @param url - адрес обращения
+ * @param doneMethod - название метода в случае получения корректного ответа
+ * @param errorMethod - название метода в случае получения ошибки
+ */
+function execAjaxQuery(url, doneMethod, errorMethod){
+    $.get(url)
+        .done(doneMethod)
+        .error(errorMethod);
+}
+
+/**
+ * Функция отображение ошибки ajax-запроса
+ * @param errorAnswer
+ */
+function showAjaxError(errorAnswer){
+    switch(errorAnswer.status){
+        case 1000:
+            alert("Ошибка клиентского ajax-запроса к серверу");
+            break;
+        case 1001:
+            alert("Ошибка сервера: не удаётся подключитсья к базе данных");
+            break;
+        case 1002:
+            alert("Ошибка сервера при выполнениии ajax-запроса");
+            break;
+    }
+    // Сам текст ошибки можно посомтреть в логе браузера, либо в:
+    // errorAnswer.responseText
+}
+
+
+/**
+ * Очистить содержимое элементы
  * @param tableId
  */
 function clearElementData(elementId){
@@ -49,11 +81,32 @@ function clearElementData(elementId){
         table.removeChild(table.firstChild);
     }
 }
-
-// Paint table cells
+/*===== Функции работы с таблицами ==================================================================*/
+// Ко всем ячейкам таблицы применить класс CSS
 function paintTableCells(tableId, cssClass){
     console.log('TEST');
     $("#"+tableId+",#"+tableId+" th,#"+tableId+" td, #"+tableId+" input").addClass(cssClass);
 };
+
+/**
+ * Добавить в таблицу строку, объединяющую несколько столбцов
+ * @param tableId - id таблицы
+ * @param caption - текст в строке
+ * @param colSpan - number of columns
+ */
+function addGroupRow(tableId, caption, colSpan){
+    // new Row
+    var row = document.createElement('TR');
+    // Name of parameter
+    var tdCaption = document.createElement('TD');
+    tdCaption.appendChild(document.createTextNode(caption));
+    tdCaption.colSpan = colSpan;
+    // Fill row
+    row.appendChild(tdCaption);
+    var tbl = document.getElementById(tableId);
+    // Add row to table
+    tbl.appendChild(row);
+    //paintTableCells(tableId, borderTableCell);
+}
 
 

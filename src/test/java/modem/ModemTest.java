@@ -1,25 +1,15 @@
 package modem;
 
 import gnu.io.*;
-import org.junit.Before;
-import org.junit.Test;
-import su.systserv.smartBuoy.modem.ATExchanger;
+import org.junit.*;
 import su.systserv.smartBuoy.modem.Modem;
-import su.systserv.smartBuoy.modem.exceptions.ATCommandError;
 import su.systserv.smartBuoy.modem.exceptions.ModemUseException;
-import su.systserv.smartBuoy.web.enums.ServerErrorCode;
-import su.systserv.smartBuoy.web.servlet.ServletUtil;
+
 
 import java.io.IOException;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Afrikanov
- * Date: 23.07.14
- * Time: 12:16
- * To change this template use File | Settings | File Templates.
- */
-public class ModemTest {
+@Ignore
+public class ModemTest extends Assert {
 
     SerialPort modemSerialPort = null;
 
@@ -28,7 +18,6 @@ public class ModemTest {
      * Тест на нахождение COM-порта модема
      */
     @Test
-    @Before
     public void findGsmModem(){
         modemSerialPort = Modem.findModem();
         if (modemSerialPort == null){
@@ -43,7 +32,7 @@ public class ModemTest {
      * @param setting - имя настроечного параметра
      * @param value - значение настроечного параметра
      */
-    //@Test
+    @Test
     public void sendSMS(Long simNumber, String setting, String value){
         if (modemSerialPort!= null){
             try{

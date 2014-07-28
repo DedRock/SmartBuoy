@@ -10,7 +10,7 @@
         <property name="hibernate.connection.password">password</property>
         <property name="hibernate.connection.autocommit">false</property>
         <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
-        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.show_sql">false</property>
 
 
         <!-- c3po Connection Pool -->

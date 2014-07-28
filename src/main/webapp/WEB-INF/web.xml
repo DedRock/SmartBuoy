@@ -54,6 +54,19 @@
         <servlet-name>inputData</servlet-name>
         <url-pattern>/input</url-pattern>
     </servlet-mapping>
+    <!--##### SendSettingSmsServlet #########################################################################################  -->
+    <servlet>
+        <servlet-name>sendSMS</servlet-name>
+        <servlet-class>su.systserv.smartBuoy.web.servlet.SendSettingSmsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>sendSMS</servlet-name>
+        <url-pattern>/sendSMS</url-pattern>
+    </servlet-mapping>
+
+
+
+
 
 
 </web-app>
